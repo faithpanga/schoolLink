@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*.sqlite3
+*.log
+
+# Env
+env/
+venv/
+
+# Django
+*.pyc
+db.sqlite3
+*.pyo
+staticfiles/
+media/
+
+# VSCode
+.vscode/
+
+# OS files
+.DS_Store
+
+# Node modules (if using Tailwind, React, etc.)
+node_modules/
