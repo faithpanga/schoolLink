@@ -13,6 +13,19 @@
         <label for="body" class="text-sm font-bold text-gray-700 block mb-2">Announcement</label>
         <textarea name="body" id="body" rows="6" required class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"></textarea>
       </div>
+
+      <!-- THE FIX: Add the SMS checkbox here -->
+      <div class="flex items-start">
+        <div class="flex items-center h-5">
+          <input id="send_sms" name="send_sms" type="checkbox" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded" />
+        </div>
+        <div class="ml-3 text-sm">
+          <label for="send_sms" class="font-medium text-gray-700">Send SMS Alert</label>
+          <p class="text-gray-500">Check this to notify parents via text message (standard messaging rates may apply).</p>
+        </div>
+      </div>
+      <!-- End of checkbox section -->
+
       <div class="flex justify-end space-x-4 pt-4">
         <a href="{% url 'teacher_dashboard' %}" class="px-4 py-2 font-semibold text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300">Cancel</a>
         <button type="submit" class="px-4 py-2 font-semibold text-white bg-indigo-600 rounded-md hover:bg-indigo-700">Send Broadcast</button>

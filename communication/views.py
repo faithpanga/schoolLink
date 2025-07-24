@@ -13,11 +13,16 @@ def broadcast_announcement(request):
     if request.method == "POST":
         subject = request.POST.get("subject")
         body = request.POST.get("body")
+        send_sms_alert = request.POST.get("send_sms") == "on"
+
         if not subject or not body:
             messages.error(request, "Subject and body are required for a broadcast.")
             return render(request, "communication/broadcast.html")
 
-        for student in Student.objects.filter(teacher=request.user):
+        student_list = Student.objects.filter(teacher=request.user)
+        sms_sent_count = 0
+
+        for student in student_list:
             Message.objects.create(
                 sender=request.user,
                 student=student,
@@ -25,11 +30,25 @@ def broadcast_announcement(request):
                 body=body,
                 is_broadcast=True,
             )
-            if student.parent.phone_number:
-                sms_body = f"School Announcement: {subject}. Please log in to your dashboard for details."
-                send_sms(student.parent.phone_number, sms_body)
-        messages.success(request, "Broadcast sent to all parents.")
+            # THE FIX: Only send SMS if the box was checked AND the parent has a number
+            if send_sms_alert and student.parent.phone_number:
+                sms_body = f"School Announcement: {subject}. Please log in to your SchoolLink dashboard for details."
+                if send_sms(student.parent.phone_number, sms_body):
+                    sms_sent_count += 1
+
+        # Give the teacher useful feedback
+        if send_sms_alert:
+            messages.success(
+                request,
+                f"Broadcast sent to all parents. {sms_sent_count} SMS alerts were sent.",
+            )
+        else:
+            messages.success(
+                request, "Broadcast sent to all parents. No SMS alerts were sent."
+            )
+
         return redirect("teacher_dashboard")
+
     return render(request, "communication/broadcast.html")
 
 
@@ -42,6 +61,8 @@ def communication_log(request, student_id):
 
     if request.method == "POST":
         body = request.POST.get("body")
+        # Check if the SMS box was ticked (only teachers will see this)
+        send_sms_alert = request.POST.get("send_sms") == "on"
         if not body:
             messages.error(request, "Cannot send an empty message.")
         else:
@@ -52,7 +73,11 @@ def communication_log(request, student_id):
                 body=body,
             )
             # Notify the other party
-            if request.user.role == "TEACHER" and student.parent.phone_number:
+            if (
+                request.user.role == "TEACHER"
+                and student.parent.phone_number
+                and send_sms_alert
+            ):
                 sms_body = f"New message from your teacher regarding {student.first_name}. Please log in to reply."
                 send_sms(student.parent.phone_number, sms_body)
             elif request.user.role == "PARENT" and student.teacher.phone_number:

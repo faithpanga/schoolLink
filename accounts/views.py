@@ -1,3 +1,4 @@
+from datetime import timezone
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
@@ -79,11 +80,15 @@ def send_account_setup_email(user, request):
     uid = urlsafe_base64_encode(force_bytes(user.pk))
     setup_link = request.build_absolute_uri(f"/accounts/setup/{uid}/{token}/")
 
+    context = {
+        "user": user,
+        "setup_link": setup_link,
+        "current_year": timezone.now().year,
+    }
+
     subject = "Welcome to SchoolLink! Set Up Your Account"
-    message = render_to_string(
-        "accounts/email/account_setup_email.html",
-        {"user": user, "setup_link": setup_link},
-    )
+    message = render_to_string("accounts/email/account_setup_email.html", context)
+
     send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [user.email])
 
 

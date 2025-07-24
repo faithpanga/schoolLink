@@ -1,19 +1,49 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Welcome to SchoolLink</title>
   </head>
-  <body style="font-family: Arial, sans-serif; line-height: 1.6;">
-    <p>Hi {{ user.first_name }},</p>
-    <p>Welcome to SchoolLink! Your child's teacher has created an account for you.</p>
-    <p>To get started and view messages and assignments, please set up your password by clicking the link below:</p>
-    <p>
-      <a href="{{ setup_link }}" style="color: #007bff; text-decoration: none;">Set Up Your Account</a>
-    </p>
-    <p>This link will expire in 24 hours.</p>
-    <p>If you did not expect this, please ignore this email.</p>
-    <br />
-    <p>Thanks,</p>
-    <p>The SchoolLink Team</p>
+  <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; background-color: #f4f4f7;">
+    <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #f4f4f7;">
+      <tr>
+        <td align="center">
+          <table width="600" border="0" cellspacing="0" cellpadding="40" style="max-width: 600px; margin: 40px auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+            <!-- Header Section -->
+            <tr>
+              <td align="center" style="border-bottom: 1px solid #e9e9eb; padding-bottom: 20px;">
+                <h1 style="font-size: 28px; color: #333333; margin: 0;">SchoolLink</h1>
+              </td>
+            </tr>
+            <!-- Body Section -->
+            <tr>
+              <td style="padding: 40px 20px;">
+                <p style="font-size: 18px; color: #555555; margin-top: 0;">Hi {{ user.first_name }},</p>
+                <p style="font-size: 16px; color: #555555; line-height: 1.6;">Welcome to SchoolLink! Your child's teacher, from their school, has added you to our communication platform to make staying updated simple and easy.</p>
+                <p style="font-size: 16px; color: #555555; line-height: 1.6;">To get started and view messages, assignments, and school events, please set up a password for your account by clicking the button below:</p>
+                <!-- Call to Action Button -->
+                <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                  <tr>
+                    <td align="center" style="padding: 20px 0;">
+                      <a href="{{ setup_link }}" target="_blank" style="background-color: #0d6efd; color: #ffffff; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-size: 16px; font-weight: bold; display: inline-block;">Set Up Your Account</a>
+                    </td>
+                  </tr>
+                </table>
+                <p style="font-size: 14px; color: #888888; text-align: center;">This secure link will expire in 24 hours.</p>
+                <p style="font-size: 14px; color: #888888; text-align: center; margin-top: 30px;">If you did not expect this invitation, please ignore this email.</p>
+              </td>
+            </tr>
+            <!-- Footer Section -->
+            <tr>
+              <td align="center" style="border-top: 1px solid #e9e9eb; padding-top: 20px;">
+                {# THE FIX: Use the context variable instead of a tag #}
+                <p style="font-size: 12px; color: #aaaaaa; margin: 0;">© {{ current_year }} SchoolLink. All rights reserved.</p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
   </body>
 </html>
