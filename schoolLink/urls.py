@@ -13,7 +13,7 @@ urlpatterns = [
     path("events/", include("events.urls")),
     path("assignments/", include("assignments.urls")),
     path("sms/", include("sms_handler.urls")),
-    path("tailwind/", include("django_tailwind.urls")),
+    # path("tailwind/", include("django-tailwind.urls")),
 ]
 
 if settings.DEBUG:

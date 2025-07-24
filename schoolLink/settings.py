@@ -42,15 +42,15 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "phonenumber_field",
-    "tailwind",
-    "theme",
     "accounts",
     "students",
     "communication",
     "assignments",
     "events",
     "sms_handler",
+    "phonenumber_field",
+    "tailwind",
+    "theme",
 ]
 
 MIDDLEWARE = [
@@ -148,7 +148,7 @@ DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL")
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# Tailwind CSS
+# # Tailwind CSS
 TAILWIND_APP_NAME = "theme"
 INTERNAL_IPS = ["127.0.0.1"]
 
