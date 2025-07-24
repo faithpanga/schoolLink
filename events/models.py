@@ -1,11 +1,13 @@
 from django.db import models
-from schoolLink.settings import AUTH_USER_MODEL
+from django.conf import settings
+
 
 class Event(models.Model):
-    title = models.CharField(max_length=200)
+    creator = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    title = models.CharField(max_length=255)
     description = models.TextField()
     date = models.DateTimeField()
-    creator = models.ForeignKey(AUTH_USER_MODEL, on_delete=models.CASCADE, limit_choices_to={'role': 'TE'})
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.title

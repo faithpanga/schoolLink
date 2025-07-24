@@ -1,9 +1,15 @@
 from django.urls import path, include
-from django.contrib.auth import views as auth_views
-from .views import *
+from . import views
 
 urlpatterns = [
-    path('login/', auth_views.LoginView.as_view(template_name='accounts/login.html'), name='login'),
-    path('logout/', auth_views.LogoutView.as_view(), name='logout'),
-    path('redirect/', login_redirect, name='login_redirect'),
+    path("register/", views.teacher_register, name="teacher_register"),
+    path("login/", views.custom_login, name="login"),
+    path("logout/", views.custom_logout, name="logout"),
+    path(
+        "setup/<uidb64>/<token>/",
+        views.setup_new_parent_account,
+        name="setup_parent_account",
+    ),
+    # Include Django's built-in auth URLs for password reset
+    path("password_reset/", include("django.contrib.auth.urls")),
 ]

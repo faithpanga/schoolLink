@@ -1,15 +1,22 @@
 from django.db import models
-from schoolLink.settings import AUTH_USER_MODEL
+from django.conf import settings
 from students.models import Student
 
+
 class Message(models.Model):
-    sender = models.ForeignKey(AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='sent_messages')
-    recipient = models.ForeignKey(AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='received_messages', null=True, blank=True)
-    student = models.ForeignKey(Student, on_delete=models.CASCADE, null=True, blank=True)
-    is_broadcast = models.BooleanField(default=False)
+    class Source(models.TextChoices):
+        APP = "APP", "Application"
+        SMS = "SMS", "SMS"
+
+    sender = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    student = models.ForeignKey(
+        Student, on_delete=models.CASCADE, related_name="messages"
+    )
     subject = models.CharField(max_length=255)
     body = models.TextField()
+    is_broadcast = models.BooleanField(default=False)
+    source = models.CharField(max_length=10, choices=Source.choices, default=Source.APP)
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Message from {self.sender} to {self.recipient} about {self.student}"
+        return self.subject

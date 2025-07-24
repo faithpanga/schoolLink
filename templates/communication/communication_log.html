@@ -1,50 +1,53 @@
-{% extends "base.html" %} {% block content %}
-<div class="max-w-4xl mx-auto">
-  <div class="flex justify-between items-center mb-6">
-    <div>
-      <h1 class="text-3xl font-bold text-gray-800">Communication Log</h1>
-      <p class="text-gray-600">
-        For student:
-        <span class="font-semibold"
-          >{{ student.first_name }} {{ student.last_name }}</span
-        >
-      </p>
+{% extends 'base.html' %}
+{% block content %}
+  <div class="max-w-3xl mx-auto">
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-3xl font-bold text-gray-800">Conversation History</h1>
+      <p class="text-gray-600">For: {{ student.first_name }} {{ student.last_name }}</p>
     </div>
-    <a
-      href="{% url 'teacher_dashboard' %}"
-      class="px-4 py-2 font-semibold text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition duration-300"
-      >Back to Dashboard</a
-    >
-  </div>
+    <div class="bg-white rounded-lg shadow-md p-6 space-y-6 h-96 overflow-y-auto flex flex-col">
+      {% for comm in communications %}
+        <div class="flex items-end {% if comm.sender == request.user %}
+            
+            justify-end
 
-  <div class="bg-white p-6 rounded-lg shadow-lg space-y-4">
-    {% for message in messages %}
-    <div
-      class="border rounded-lg p-4 {% if message.is_broadcast %}bg-indigo-50 border-indigo-200{% else %}bg-green-50 border-green-200{% endif %}"
-    >
-      <div class="flex justify-between items-center">
-        <h3 class="font-bold text-lg text-gray-800">{{ message.subject }}</h3>
-        <span class="text-sm text-gray-500"
-          >{{ message.timestamp|date:"F d, Y, P" }}</span
-        >
-      </div>
-      {% if message.is_broadcast %}
-      <span
-        class="mt-1 text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-indigo-600 bg-indigo-200"
-        >BROADCAST</span
-      >
-      {% else %}
-      <p class="text-sm text-gray-500">
-        To: {{ message.recipient.first_name }} {{ message.recipient.last_name }}
-      </p>
-      {% endif %}
-      <p class="text-gray-700 mt-2">{{ message.body|linebreaks }}</p>
+          {% else %}
+            
+            justify-start
+
+          {% endif %}">
+          <div class="max-w-lg p-3 rounded-xl {% if comm.sender == request.user %}
+              
+              bg-blue-500 text-white
+
+            {% else %}
+              
+              bg-gray-200 text-gray-800
+
+            {% endif %}">
+            <p class="font-bold text-sm">
+              {{ comm.sender.first_name }} {% if comm.source == 'SMS' %}
+                <span class="font-normal opacity-75">(via SMS)</span>
+              {% endif %}
+            </p>
+            <p class="text-md">{{ comm.body|linebreaks }}</p>
+            <p class="text-xs text-right mt-1 opacity-70">{{ comm.timestamp|date:'M d, P' }}</p>
+          </div>
+        </div>
+      {% empty %}
+        <p class="text-center text-gray-500 m-auto">No communications yet. Start the conversation!</p>
+      {% endfor %}
     </div>
-    {% empty %}
-    <p class="text-gray-500 text-center py-4">
-      No messages have been sent for this student yet.
-    </p>
-    {% endfor %}
+    <div class="mt-6">
+      <form action="{% url 'communication_log' student.id %}" method="post" class="bg-white p-4 rounded-lg shadow-md flex items-center space-x-4">
+        {% csrf_token %}
+        <textarea name="body" rows="1" placeholder="Type your message here..." class="flex-grow p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+        <button type="submit" class="bg-blue-500 text-white font-bold p-3 rounded-full hover:bg-blue-600 transition-transform duration-150 ease-in-out hover:scale-110">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+          </svg>
+        </button>
+      </form>
+    </div>
   </div>
-</div>
 {% endblock %}

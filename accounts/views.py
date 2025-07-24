@@ -1,17 +1,113 @@
-from django.shortcuts import redirect
-from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect
+from django.contrib.auth import login, authenticate, logout
+from django.contrib import messages
+from .forms import TeacherRegistrationForm
+from .models import User
 
-@login_required
-def login_redirect(request):
-    """
-    Redirects users to their appropriate dashboard after login based on their role.
-    """
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_str
+from django.contrib.auth.tokens import default_token_generator
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
+from django.conf import settings
+
+
+def home_view(request):
     if request.user.is_authenticated:
-        if request.user.role == 'TEACHER':
-            return redirect('teacher_dashboard')
-        elif request.user.role == 'PARENT':
-            return redirect('parent_dashboard')
-    
-    # As a fallback, if the user has no role or is not authenticated,
-    # send them back to the login page.
-    return redirect('login')
+        if request.user.role == "TEACHER":
+            return redirect("teacher_dashboard")
+        elif request.user.role == "PARENT":
+            return redirect("parent_dashboard")
+    return render(request, "home.html")
+
+
+def teacher_register(request):
+    if request.user.is_authenticated:
+        return redirect("home")
+    if request.method == "POST":
+        form = TeacherRegistrationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            messages.success(request, "Registration successful. Welcome!")
+            return redirect("home")
+    else:
+        form = TeacherRegistrationForm()
+    return render(request, "accounts/register.html", {"form": form})
+
+
+def custom_login(request):
+    if request.user.is_authenticated:
+        return redirect("home")
+    if request.method == "POST":
+        identifier = request.POST.get("identifier")
+        password = request.POST.get("password")
+        user = None
+
+        if not identifier or not password:
+            messages.error(request, "Please provide both an identifier and a password.")
+            return render(request, "accounts/login.html")
+
+        try:
+            if "@" in identifier:
+                user = authenticate(request, email=identifier, password=password)
+            else:
+                parent = User.objects.get(phone_number=identifier, role="PARENT")
+                if parent.check_password(password):
+                    user = parent
+        except User.DoesNotExist:
+            pass
+
+        if user is not None:
+            login(request, user)
+            messages.info(request, f"Welcome back, {user.first_name}!")
+            return redirect("home")
+        else:
+            messages.error(request, "Invalid credentials. Please try again.")
+
+    return render(request, "accounts/login.html")
+
+
+def custom_logout(request):
+    logout(request)
+    messages.info(request, "You have successfully logged out.")
+    return redirect("home")
+
+
+def send_account_setup_email(user, request):
+    token = default_token_generator.make_token(user)
+    uid = urlsafe_base64_encode(force_bytes(user.pk))
+    setup_link = request.build_absolute_uri(f"/accounts/setup/{uid}/{token}/")
+
+    subject = "Welcome to SchoolLink! Set Up Your Account"
+    message = render_to_string(
+        "accounts/email/account_setup_email.html",
+        {"user": user, "setup_link": setup_link},
+    )
+    send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [user.email])
+
+
+def setup_new_parent_account(request, uidb64, token):
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
+
+    if user is not None and default_token_generator.check_token(user, token):
+        if request.method == "POST":
+            password = request.POST.get("password")
+            password_confirm = request.POST.get("password_confirm")
+            if password and password == password_confirm:
+                user.set_password(password)
+                user.save()
+                messages.success(
+                    request, "Your password has been set! You can now log in."
+                )
+                return redirect("login")
+            else:
+                messages.error(request, "Passwords do not match. Please try again.")
+        return render(request, "accounts/setup_parent_account.html")
+    else:
+        messages.error(request, "The account setup link is invalid or has expired.")
+        return redirect("home")

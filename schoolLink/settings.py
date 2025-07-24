@@ -27,11 +27,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-b=2ihd*l_=-(vxu#b9kd#u(wlyj@z(-1jecv_-+d$*fh+5&3*^"
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+SECRET_KEY = os.getenv("SECRET_KEY")
+DEBUG = os.getenv("DEBUG", "False") == "True"
 
 ALLOWED_HOSTS = []
 
@@ -45,12 +42,15 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "accounts",
-    "communication",
-    "events",
-    "students",
+    "phonenumber_field",
     "tailwind",
     "theme",
+    "accounts",
+    "students",
+    "communication",
+    "assignments",
+    "events",
+    "sms_handler",
 ]
 
 MIDDLEWARE = [
@@ -68,7 +68,7 @@ ROOT_URLCONF = "schoolLink.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [os.path.join(BASE_DIR, 'templates')],
+        "DIRS": [os.path.join(BASE_DIR, "templates")],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -91,7 +91,7 @@ DATABASES = {
         "ENGINE": "django.db.backends.mysql",
         "NAME": "schoollink",
         "USER": "schoollink",
-        "PASSWORD": "3131",
+        "PASSWORD": "Faye@3131",
         "HOST": "localhost",
         "PORT": "3306",
     }
@@ -135,12 +135,30 @@ AUTH_USER_MODEL = "accounts.User"  # Set the custom user model
 
 STATIC_URL = "static/"
 
+# Email Configuration
+EMAIL_HOST = os.getenv("EMAIL_HOST")
+EMAIL_PORT = int(os.getenv("EMAIL_PORT", 587))
+EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", "True") == "True"
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
+DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL")
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+# Tailwind CSS
 TAILWIND_APP_NAME = "theme"
+INTERNAL_IPS = ["127.0.0.1"]
+
+# Phonenumber Field Configuration
+PHONENUMBER_DEFAULT_REGION = "TZ"
+
+# Twilio Configuration
+TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID")
+TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN")
+TWILIO_PHONE_NUMBER = os.getenv("TWILIO_PHONE_NUMBER")
 
 # The URL where requests are redirected for login when the
 # login_required decorator is used.
@@ -148,7 +166,7 @@ LOGIN_URL = "login"
 
 # The URL route name where users are redirected after a successful login.
 # This now points to our dynamic redirector view.
-LOGIN_REDIRECT_URL = "login_redirect"
+LOGIN_REDIRECT_URL = "home"
 
 # The URL where users are redirected after logging out.
-LOGOUT_REDIRECT_URL = "login"
+LOGOUT_REDIRECT_URL = "home"

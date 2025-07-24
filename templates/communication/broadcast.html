@@ -1,51 +1,22 @@
-{% extends "base.html" %} {% block content %}
-<div class="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow-xl">
-  <h1 class="text-2xl font-bold text-gray-800 mb-2">
-    Send Broadcast Announcement
-  </h1>
-  <p class="text-gray-600 mb-6">
-    This message will be sent to the parents of all your students.
-  </p>
-
-  <form method="post" class="space-y-6">
-    {% csrf_token %}
-    <div>
-      <label for="subject" class="text-sm font-bold text-gray-600 block mb-2"
-        >Subject</label
-      >
-      <input
-        type="text"
-        name="subject"
-        id="subject"
-        required
-        class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-      />
-    </div>
-    <div>
-      <label for="body" class="text-sm font-bold text-gray-600 block mb-2"
-        >Announcement</label
-      >
-      <textarea
-        name="body"
-        id="body"
-        rows="6"
-        required
-        class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-      ></textarea>
-    </div>
-    <div class="flex justify-end space-x-4 pt-4">
-      <a
-        href="{% url 'teacher_dashboard' %}"
-        class="px-4 py-2 font-semibold text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition duration-300"
-        >Cancel</a
-      >
-      <button
-        type="submit"
-        class="px-4 py-2 font-semibold text-white bg-indigo-500 rounded-md hover:bg-indigo-600 transition duration-300"
-      >
-        Send Broadcast
-      </button>
-    </div>
-  </form>
-</div>
+{% extends 'base.html' %}
+{% block content %}
+  <div class="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow-lg">
+    <h1 class="text-2xl font-bold text-gray-800 mb-2">Send Broadcast Announcement</h1>
+    <p class="text-gray-600 mb-6">This message will be sent to the parents of all your students.</p>
+    <form method="post" class="space-y-6">
+      {% csrf_token %}
+      <div>
+        <label for="subject" class="text-sm font-bold text-gray-700 block mb-2">Subject</label>
+        <input type="text" name="subject" id="subject" required class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" />
+      </div>
+      <div>
+        <label for="body" class="text-sm font-bold text-gray-700 block mb-2">Announcement</label>
+        <textarea name="body" id="body" rows="6" required class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+      </div>
+      <div class="flex justify-end space-x-4 pt-4">
+        <a href="{% url 'teacher_dashboard' %}" class="px-4 py-2 font-semibold text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300">Cancel</a>
+        <button type="submit" class="px-4 py-2 font-semibold text-white bg-indigo-600 rounded-md hover:bg-indigo-700">Send Broadcast</button>
+      </div>
+    </form>
+  </div>
 {% endblock %}

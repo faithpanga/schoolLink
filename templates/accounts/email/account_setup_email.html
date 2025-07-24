@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Welcome to SchoolLink</title>
+  </head>
+  <body style="font-family: Arial, sans-serif; line-height: 1.6;">
+    <p>Hi {{ user.first_name }},</p>
+    <p>Welcome to SchoolLink! Your child's teacher has created an account for you.</p>
+    <p>To get started and view messages and assignments, please set up your password by clicking the link below:</p>
+    <p>
+      <a href="{{ setup_link }}" style="color: #007bff; text-decoration: none;">Set Up Your Account</a>
+    </p>
+    <p>This link will expire in 24 hours.</p>
+    <p>If you did not expect this, please ignore this email.</p>
+    <br />
+    <p>Thanks,</p>
+    <p>The SchoolLink Team</p>
+  </body>
+</html>

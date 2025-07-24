@@ -1,13 +1,20 @@
 from django.contrib import admin
 from django.urls import path, include
-from django.views.generic.base import RedirectView # <-- Import this
+from django.conf import settings
+from django.conf.urls.static import static
+from accounts.views import home_view
 
 urlpatterns = [
-    # Add this line: It makes the root URL redirect to the login page
-    path('', RedirectView.as_view(url='/accounts/login/', permanent=False), name='index'),
-    path('admin/', admin.site.urls),
-    path('accounts/', include('accounts.urls')),
-    path('dashboard/', include('students.urls')),
-    path('communication/', include('communication.urls')),
-    path('events/', include('events.urls')),
+    path("admin/", admin.site.urls),
+    path("", home_view, name="home"),
+    path("accounts/", include("accounts.urls")),
+    path("students/", include("students.urls")),
+    path("communication/", include("communication.urls")),
+    path("events/", include("events.urls")),
+    path("assignments/", include("assignments.urls")),
+    path("sms/", include("sms_handler.urls")),
+    path("tailwind/", include("django_tailwind.urls")),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

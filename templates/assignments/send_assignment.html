@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block content %}
+  <div class="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-lg">
+    <h1 class="text-2xl font-bold text-gray-800 mb-2">Send Assignment</h1>
+    <p class="text-gray-600 mb-6">
+      For student: <span class="font-semibold">{{ student.first_name }} {{ student.last_name }}</span>
+    </p>
+    <form method="post" enctype="multipart/form-data" class="space-y-6">
+      {% csrf_token %}
+      <div>
+        <label class="text-sm font-bold text-gray-700 block mb-2" for="{{ form.title.id_for_label }}">Title</label>
+        {{ form.title }}
+      </div>
+      <div>
+        <label class="text-sm font-bold text-gray-700 block mb-2" for="{{ form.notes.id_for_label }}">Notes for Parent</label>
+        {{ form.notes }}
+      </div>
+      <div>
+        <label class="text-sm font-bold text-gray-700 block mb-2" for="{{ form.attachment.id_for_label }}">Attach File</label>
+        {{ form.attachment }}
+      </div>
+      <div class="flex justify-end space-x-4 pt-4">
+        <a href="{% url 'teacher_dashboard' %}" class="px-4 py-2 font-semibold text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300">Cancel</a>
+        <button type="submit" class="px-4 py-2 font-semibold text-white bg-purple-600 rounded-md hover:bg-purple-700">Send Assignment</button>
+      </div>
+    </form>
+  </div>
+{% endblock %}
