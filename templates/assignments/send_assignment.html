@@ -7,18 +7,18 @@
     </p>
     <form method="post" enctype="multipart/form-data" class="space-y-6">
       {% csrf_token %}
-      <div>
-        <label class="text-sm font-bold text-gray-700 block mb-2" for="{{ form.title.id_for_label }}">Title</label>
-        {{ form.title }}
-      </div>
-      <div>
-        <label class="text-sm font-bold text-gray-700 block mb-2" for="{{ form.notes.id_for_label }}">Notes for Parent</label>
-        {{ form.notes }}
-      </div>
-      <div>
-        <label class="text-sm font-bold text-gray-700 block mb-2" for="{{ form.attachment.id_for_label }}">Attach File</label>
-        {{ form.attachment }}
-      </div>
+      {% for field in form %}
+        <div>
+          <label for="{{ field.id_for_label }}" class="text-sm font-bold text-gray-700 block mb-2">{{ field.label }}</label>
+          {{ field }}
+          {% if field.help_text %}
+            <small class="text-gray-500">{{ field.help_text }}</small>
+          {% endif %}
+          {% if field.errors %}
+            <div class="text-red-600 text-sm mt-1">{{ field.errors }}</div>
+          {% endif %}
+        </div>
+      {% endfor %}
       <div class="flex justify-end space-x-4 pt-4">
         <a href="{% url 'teacher_dashboard' %}" class="px-4 py-2 font-semibold text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300">Cancel</a>
         <button type="submit" class="px-4 py-2 font-semibold text-white bg-purple-600 rounded-md hover:bg-purple-700">Send Assignment</button>
