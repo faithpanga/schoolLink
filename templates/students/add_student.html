@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-lg">
+    <h1 class="text-3xl font-bold text-gray-800 mb-6 border-b border-gray-200 pb-4">Add a New Student</h1>
+
+    <form method="post" class="space-y-8">
+      {% csrf_token %}
+
+      <!-- Student Information Section -->
+      <fieldset class="p-4 border border-gray-200 rounded-md">
+        <legend class="px-2 font-semibold text-lg text-gray-700">Student Information</legend>
+        <div class="space-y-4 mt-2">
+          <div>
+            <label for="{{ form.student_first_name.id_for_label }}" class="text-sm font-bold text-gray-600 block mb-1">{{ form.student_first_name.label }}</label>
+            {{ form.student_first_name }}
+            {% if form.student_first_name.errors %}
+              <div class="text-red-600 text-sm mt-1">{{ form.student_first_name.errors }}</div>
+            {% endif %}
+          </div>
+          <div>
+            <label for="{{ form.student_last_name.id_for_label }}" class="text-sm font-bold text-gray-600 block mb-1">{{ form.student_last_name.label }}</label>
+            {{ form.student_last_name }}
+            {% if form.student_last_name.errors %}
+              <div class="text-red-600 text-sm mt-1">{{ form.student_last_name.errors }}</div>
+            {% endif %}
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- Parent Information Section -->
+      <fieldset class="p-4 border border-gray-200 rounded-md">
+        <legend class="px-2 font-semibold text-lg text-gray-700">Parent Information</legend>
+        <p class="text-sm text-gray-500 mb-4 px-2">The system will link to an existing parent or create a new one based on this info.</p>
+        <div class="space-y-4 mt-2">
+          <div>
+            <label for="{{ form.parent_first_name.id_for_label }}" class="text-sm font-bold text-gray-600 block mb-1">{{ form.parent_first_name.label }}</label>
+            {{ form.parent_first_name }}
+            {% if form.parent_first_name.errors %}
+              <div class="text-red-600 text-sm mt-1">{{ form.parent_first_name.errors }}</div>
+            {% endif %}
+          </div>
+          <div>
+            <label for="{{ form.parent_last_name.id_for_label }}" class="text-sm font-bold text-gray-600 block mb-1">{{ form.parent_last_name.label }}</label>
+            {{ form.parent_last_name }}
+            {% if form.parent_last_name.errors %}
+              <div class="text-red-600 text-sm mt-1">{{ form.parent_last_name.errors }}</div>
+            {% endif %}
+          </div>
+          <div>
+            <label for="{{ form.parent_email.id_for_label }}" class="text-sm font-bold text-gray-600 block mb-1">{{ form.parent_email.label }}</label>
+            {{ form.parent_email }}
+            {% if form.parent_email.errors %}
+              <div class="text-red-600 text-sm mt-1">{{ form.parent_email.errors }}</div>
+            {% endif %}
+          </div>
+          <div>
+            <label for="{{ form.parent_phone.id_for_label }}" class="text-sm font-bold text-gray-600 block mb-1">{{ form.parent_phone.label }}</label>
+            {{ form.parent_phone }}
+            {% if form.parent_phone.help_text %}
+              <small class="text-gray-500">{{ form.parent_phone.help_text }}</small>
+            {% endif %}
+            {% if form.parent_phone.errors %}
+              <div class="text-red-600 text-sm mt-1">{{ form.parent_phone.errors }}</div>
+            {% endif %}
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- Submission Buttons -->
+      <div class="flex justify-end space-x-4 pt-4">
+        <a href="{% url 'teacher_dashboard' %}" class="px-6 py-2 font-semibold text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300">Cancel</a>
+        <button type="submit" class="px-6 py-2 font-semibold text-white bg-blue-600 rounded-md hover:bg-blue-700">Add Student</button>
+      </div>
+    </form>
+  </div>
+{% endblock %}

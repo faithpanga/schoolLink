@@ -11,5 +11,5 @@ urlpatterns = [
         name="setup_parent_account",
     ),
     # Include Django's built-in auth URLs for password reset
-    path("password_reset/", include("django.contrib.auth.urls")),
+    path("", include("django.contrib.auth.urls")),
 ]
