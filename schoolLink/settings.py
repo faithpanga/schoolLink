@@ -153,7 +153,7 @@ TAILWIND_APP_NAME = "theme"
 INTERNAL_IPS = ["127.0.0.1"]
 
 # Phonenumber Field Configuration
-PHONENUMBER_DEFAULT_REGION = "TZ"
+PHONENUMBER_DEFAULT_REGION = "US"
 
 # Twilio Configuration
 TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID")

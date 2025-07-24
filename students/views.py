@@ -60,7 +60,12 @@ def add_student(request):
             data = form.cleaned_data
             parent = None
             try:
+                # Check if a parent with this email already exists
                 parent = User.objects.get(email=data["parent_email"])
+                messages.info(
+                    request,
+                    f"Existing parent account for {parent.email} was found and linked.",
+                )
             except User.DoesNotExist:
                 parent = User.objects.create(
                     email=data["parent_email"],
