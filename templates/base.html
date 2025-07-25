@@ -1,74 +1,109 @@
-{% load static tailwind_tags %}
+{% load static %}
 <!DOCTYPE html>
-<html lang="en" class="h-full bg-gray-50">
-  <!-- templates/base.html -->
+<!-- The data-theme attribute controls the entire color palette. Try "light", "dark", "cupcake", "bumblebee", "synthwave" -->
+<html lang="en" data-theme="light">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>SchoolLink</title>
-    <link rel="icon" type="image/png" href="{% static 'images/favicon.png' %}" /> <!-- Add this line -->
-    {% tailwind_css %}
+    <link rel="icon" type="image/png" href="{% static 'images/favicon.png' %}" />
+    <link href="{% static 'css/dist/styles.css' %}" rel="stylesheet" />
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+      [x-cloak] {
+        display: none !important;
+      }
+    </style>
   </head>
-  <body class="h-full font-sans">
-    <nav class="bg-white shadow-sm">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between h-16">
-          <div class="flex-shrink-0">
-            <a href="{% url 'home' %}" class="text-2xl font-bold text-gray-800">SchoolLink</a>
+  <body class="bg-base-200 min-h-screen flex flex-col">
+    <!-- Navbar -->
+    <header class="navbar bg-base-100 shadow-sm sticky top-0 z-40">
+      <div class="navbar-start">
+        <div class="dropdown">
+          <div tabindex="0" role="button" class="btn btn-ghost lg:hidden">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h8m-8 6h16" />
+            </svg>
           </div>
-          <div class="hidden md:flex items-center space-x-4">
+          <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
             {% if user.is_authenticated %}
-              {% if user.role == 'TEACHER' %}
-                <a href="{% url 'teacher_dashboard' %}" class="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">Dashboard</a>
-              {% elif user.role == 'PARENT' %}
-                <a href="{% url 'parent_dashboard' %}" class="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">Dashboard</a>
-              {% endif %}
-              <a href="{% url 'view_events' %}" class="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">Events</a>
-            {% endif %}
-          </div>
-          <div class="flex items-center">
-            {% if user.is_authenticated %}
-              <span class="text-gray-700 text-sm mr-4">Welcome, {{ user.first_name }}</span>
-              <a href="{% url 'logout' %}" class="bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-md text-sm font-medium">Logout</a>
+              <li>
+                <a href="{% if user.role == 'TEACHER' %}
+                    {% url 'teacher_dashboard' %}
+                  {% else %}
+                    {% url 'parent_dashboard' %}
+                  {% endif %}">
+                  Dashboard
+                </a>
+              </li>
+              <li>
+                <a href="{% url 'view_events' %}">Events</a>
+              </li>
             {% else %}
-              <a href="{% url 'login' %}" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-md text-sm font-medium">Login</a>
+              <li>
+                <a href="{% url 'login' %}" class="btn btn-primary w-full">Login</a>
+              </li>
             {% endif %}
-          </div>
+          </ul>
         </div>
+        <a href="{% url 'home' %}" class="btn btn-ghost text-xl">SchoolLink</a>
       </div>
-    </nav>
-    <main>
-      <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        {% if messages %}
-          <div class="mb-6 space-y-2">
-            {% for message in messages %}
-              <div class="p-4 text-sm rounded-lg {% if message.tags == 'success' %}
-                  
-                  
-                  bg-green-100 border border-green-400 text-green-800
 
-
-                {% elif message.tags == 'error' %}
-                  
-                  
-                  bg-red-100 border border-red-400 text-red-800
-
-
+      <div class="navbar-center hidden lg:flex">
+        {% if user.is_authenticated %}
+          <ul class="menu menu-horizontal px-1">
+            <li>
+              <a href="{% if user.role == 'TEACHER' %}
+                  {% url 'teacher_dashboard' %}
                 {% else %}
-                  
-                  
-                  bg-blue-100 border border-blue-400 text-blue-800
-
-
-                {% endif %}"
-                role="alert">{{ message }}</div>
-            {% endfor %}
-          </div>
+                  {% url 'parent_dashboard' %}
+                {% endif %}">
+                Dashboard
+              </a>
+            </li>
+            <li>
+              <a href="{% url 'view_events' %}">Events</a>
+            </li>
+          </ul>
         {% endif %}
-        {% block content %}
-
-        {% endblock %}
       </div>
+
+      <div class="navbar-end">
+        {% if user.is_authenticated %}
+          <div class="dropdown dropdown-end">
+            <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
+              <div class="w-10 rounded-full bg-primary text-primary-content flex items-center justify-center font-bold">
+                <span>{{ user.first_name|first|upper }}{{ user.last_name|first|upper }}</span>
+              </div>
+            </div>
+            <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
+              <li class="p-2 font-semibold">Welcome, {{ user.first_name }}</li>
+              <div class="divider my-0"></div>
+              <li>
+                <a href="{% url 'logout' %}">Logout</a>
+              </li>
+            </ul>
+          </div>
+        {% else %}
+          <a href="{% url 'login' %}" class="btn btn-primary hidden lg:flex">Login</a>
+        {% endif %}
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="p-4 sm:p-6 lg:p-8 flex-grow">
+      {% block content %}
+
+      {% endblock %}
     </main>
+
+    <!-- Footer -->
+    <footer class="footer text-center footer-center p-4 bg-base-300 text-base-content">
+      <aside>
+        <p>
+          Copyright ©{% now 'Y' %}- All right reserved by SchoolLink
+        </p>
+      </aside>
+    </footer>
   </body>
 </html>

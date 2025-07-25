@@ -75,6 +75,10 @@ def custom_logout(request):
 
 
 def send_account_setup_email(user, request):
+    """
+    Generates a setup link and sends it to the new parent user in a
+    beautiful HTML email.
+    """
     token = default_token_generator.make_token(user)
     uid = urlsafe_base64_encode(force_bytes(user.pk))
     setup_link = request.build_absolute_uri(f"/accounts/setup/{uid}/{token}/")
@@ -85,10 +89,32 @@ def send_account_setup_email(user, request):
         "current_year": timezone.now().year,
     }
 
-    subject = "Welcome to SchoolLink! Set Up Your Account"
-    message = render_to_string("accounts/email/account_setup_email.html", context)
+    # --- THIS IS THE FIX ---
 
-    send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [user.email])
+    # 1. Render your beautiful HTML template to a string
+    html_message = render_to_string("accounts/email/account_setup_email.html", context)
+
+    # 2. Create a simple plain-text version as a fallback
+    plain_message = (
+        f"Hi {user.first_name},\n\n"
+        f"Welcome to SchoolLink! To finish setting up your account, please visit the following link:\n"
+        f"{setup_link}\n\n"
+        f"Thanks,\nThe SchoolLink Team"
+    )
+
+    # 3. Send the email using the 'html_message' parameter
+    try:
+        send_mail(
+            subject="Welcome to SchoolLink! Set Up Your Account",
+            message=plain_message,  # The plain text version
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[user.email],
+            html_message=html_message,  # The HTML version
+            fail_silently=False,
+        )
+    except Exception as e:
+        # This helps you debug if the email sending itself fails
+        print(f"ERROR: Could not send account setup email. Reason: {e}")
 
 
 def setup_new_parent_account(request, uidb64, token):
