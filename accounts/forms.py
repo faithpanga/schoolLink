@@ -35,47 +35,48 @@ class LoginForm(forms.Form):
 
 class TeacherRegistrationForm(UserCreationForm):
     """
-    A custom UserCreationForm for Teachers.
-    We explicitly define all fields to ensure they exist before styling.
+    The definitive, corrected registration form for Teachers.
+    This version correctly uses the Meta class to define model fields
+    and lets the parent UserCreationForm handle the password fields.
     """
-
-    # Explicitly define the fields we want to add or control
-    first_name = forms.CharField(max_length=100, label="First Name")
-    last_name = forms.CharField(max_length=100, label="Last Name")
-    email = forms.EmailField(label="Email Address")
-    phone_number = PhoneNumberField(
-        label="Phone Number", widget=forms.TextInput(attrs={"id": "phone_number_input"})
-    )
 
     class Meta(UserCreationForm.Meta):
         model = User
-        # The fields tuple now includes 'new_password1' and 'new_password2' from the parent form.
-        # It should list all fields that the form will handle.
+        # Tell the form to use these fields from your User model.
+        # The UserCreationForm will AUTOMATICALLY add the password fields itself.
         fields = ("first_name", "last_name", "email", "phone_number")
 
     def __init__(self, *args, **kwargs):
+        # This is where all the fields are created.
         super().__init__(*args, **kwargs)
-        # Now that all fields are guaranteed to exist, we can safely style them.
+
+        # Now that super() has run, all fields exist, including the password fields.
+        # We can now safely loop through them to apply styling.
         for field_name, field in self.fields.items():
-            # The password fields have different placeholder text
-            if field_name == "new_password1":
-                placeholder = "Enter password"
-            elif field_name == "new_password2":
-                placeholder = "Confirm password"
-            else:
-                placeholder = field.label
+
+            # Use a dictionary for cleaner placeholder mapping
+            placeholders = {
+                "first_name": "Your first name",
+                "last_name": "Your last name",
+                "email": "your.email@example.com",
+                "phone_number": "Your phone number",
+                "new_password1": "Create a strong password",
+                "new_password2": "Confirm your password",
+            }
 
             field.widget.attrs.update(
                 {
                     "class": "input input-bordered w-full",
-                    "placeholder": placeholder,
+                    "placeholder": placeholders.get(field_name, ""),  # Set placeholder
                 }
             )
-            # Give the phone number input its special ID for the JS library
+
+            # Add the special ID for the phone number field's JavaScript
             if field_name == "phone_number":
                 field.widget.attrs["id"] = "phone_number_input"
 
     def save(self, commit=True):
+        # This method is correct, no changes needed here.
         user = super().save(commit=False)
         user.role = User.Role.TEACHER
         if commit:
