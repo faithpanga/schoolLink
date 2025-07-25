@@ -1,28 +1,31 @@
 {% extends 'base.html' %}
 {% block content %}
-  <div class="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-lg">
-    <h1 class="text-2xl font-bold text-gray-800 mb-2">Send Assignment</h1>
-    <p class="text-gray-600 mb-6">
-      For student: <span class="font-semibold">{{ student.first_name }} {{ student.last_name }}</span>
-    </p>
-    <form method="post" enctype="multipart/form-data" class="space-y-6">
-      {% csrf_token %}
-      {% for field in form %}
-        <div>
-          <label for="{{ field.id_for_label }}" class="text-sm font-bold text-gray-700 block mb-2">{{ field.label }}</label>
-          {{ field }}
-          {% if field.help_text %}
-            <small class="text-gray-500">{{ field.help_text }}</small>
-          {% endif %}
-          {% if field.errors %}
-            <div class="text-red-600 text-sm mt-1">{{ field.errors }}</div>
-          {% endif %}
-        </div>
-      {% endfor %}
-      <div class="flex justify-end space-x-4 pt-4">
-        <a href="{% url 'teacher_dashboard' %}" class="px-4 py-2 font-semibold text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300">Cancel</a>
-        <button type="submit" class="px-4 py-2 font-semibold text-white bg-purple-600 rounded-md hover:bg-purple-700">Send Assignment</button>
+  <div class="flex justify-center items-center py-10">
+    <div class="card w-full max-w-xl bg-base-100 shadow-xl">
+      <div class="card-body p-8">
+        <h2 class="card-title text-3xl justify-center">Send Assignment</h2>
+        <p class="text-center text-base-content/70 mt-1 mb-6">
+          For student: <span class="font-bold">{{ student.first_name }} {{ student.last_name }}</span>
+        </p>
+
+        <form method="post" enctype="multipart/form-data" class="space-y-4">
+          {% csrf_token %}
+
+          {% for field in form %}
+            <label class="form-control w-full">
+              <div class="label">
+                <span class="label-text">{{ field.label }}</span>
+              </div>
+              {{ field }}
+            </label>
+          {% endfor %}
+
+          <div class="card-actions justify-end mt-6 gap-2">
+            <a href="{% url 'teacher_dashboard' %}" class="btn btn-ghost">Cancel</a>
+            <button type="submit" class="btn btn-primary">Send Assignment</button>
+          </div>
+        </form>
       </div>
-    </form>
+    </div>
   </div>
 {% endblock %}

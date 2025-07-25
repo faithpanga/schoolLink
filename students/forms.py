@@ -1,5 +1,7 @@
+# students/forms.py
+
 from django import forms
-from phonenumber_field.formfields import PhoneNumberField
+from phonenumber_field.formfields import PhoneNumberField  # <-- CORRECTED IMPORT
 
 
 class AddStudentForm(forms.Form):
@@ -8,17 +10,19 @@ class AddStudentForm(forms.Form):
     parent_first_name = forms.CharField(max_length=100, label="Parent's First Name")
     parent_last_name = forms.CharField(max_length=100, label="Parent's Last Name")
     parent_email = forms.EmailField(label="Parent's Email Address")
+
+    # The parent_phone field now lives here, where it belongs.
     parent_phone = PhoneNumberField(
         label="Parent's Phone Number",
-        help_text="Use E.164 format (e.g., +255712345678)",
+        widget=forms.TextInput(attrs={"id": "parent_phone_input"}),
     )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        # This loop applies the correct DaisyUI class to all fields.
         for name, field in self.fields.items():
             field.widget.attrs.update(
                 {
-                    "class": "w-full p-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500",
-                    "placeholder": field.label,
+                    "class": "input input-bordered w-full",
                 }
             )

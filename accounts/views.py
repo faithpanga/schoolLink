@@ -2,7 +2,7 @@ from django.utils import timezone  # This is Django's time-aware utility
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
-from .forms import TeacherRegistrationForm
+from .forms import LoginForm, TeacherRegistrationForm
 from .models import User
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
@@ -39,33 +39,40 @@ def teacher_register(request):
 def custom_login(request):
     if request.user.is_authenticated:
         return redirect("home")
+
     if request.method == "POST":
-        identifier = request.POST.get("identifier")
-        password = request.POST.get("password")
-        user = None
+        form = LoginForm(request.POST)  # Bind data to the form
+        if form.is_valid():
+            identifier = form.cleaned_data.get("identifier")
+            password = form.cleaned_data.get("password")
+            user = None
 
-        if not identifier or not password:
-            messages.error(request, "Please provide both an identifier and a password.")
-            return render(request, "accounts/login.html")
-
-        try:
-            if "@" in identifier:
+            try:  # Use email to authenticate
                 user = authenticate(request, email=identifier, password=password)
+            except:
+                pass
+
+            if not user:  # If email fails, try phone
+                try:
+                    user_by_phone = User.objects.get(phone_number=identifier)
+                    if user_by_phone.check_password(password):
+                        user = authenticate(
+                            request, email=user_by_phone.email, password=password
+                        )
+                except User.DoesNotExist:
+                    pass
+
+            if user is not None:
+                login(request, user)
+                messages.info(request, f"Welcome back, {user.first_name}!")
+                return redirect("home")
             else:
-                parent = User.objects.get(phone_number=identifier, role="PARENT")
-                if parent.check_password(password):
-                    user = parent
-        except User.DoesNotExist:
-            pass
+                messages.error(request, "Invalid credentials. Please try again.")
+    else:
+        form = LoginForm()  # Create an unbound form for GET requests
 
-        if user is not None:
-            login(request, user)
-            messages.info(request, f"Welcome back, {user.first_name}!")
-            return redirect("home")
-        else:
-            messages.error(request, "Invalid credentials. Please try again.")
-
-    return render(request, "accounts/login.html")
+    # Pass the form to the template
+    return render(request, "accounts/login.html", {"form": form})
 
 
 def custom_logout(request):
@@ -75,10 +82,6 @@ def custom_logout(request):
 
 
 def send_account_setup_email(user, request):
-    """
-    Generates a setup link and sends it to the new parent user in a
-    beautiful HTML email.
-    """
     token = default_token_generator.make_token(user)
     uid = urlsafe_base64_encode(force_bytes(user.pk))
     setup_link = request.build_absolute_uri(f"/accounts/setup/{uid}/{token}/")
@@ -89,32 +92,10 @@ def send_account_setup_email(user, request):
         "current_year": timezone.now().year,
     }
 
-    # --- THIS IS THE FIX ---
+    subject = "Welcome to SchoolLink! Set Up Your Account"
+    message = render_to_string("accounts/email/account_setup_email.html", context)
 
-    # 1. Render your beautiful HTML template to a string
-    html_message = render_to_string("accounts/email/account_setup_email.html", context)
-
-    # 2. Create a simple plain-text version as a fallback
-    plain_message = (
-        f"Hi {user.first_name},\n\n"
-        f"Welcome to SchoolLink! To finish setting up your account, please visit the following link:\n"
-        f"{setup_link}\n\n"
-        f"Thanks,\nThe SchoolLink Team"
-    )
-
-    # 3. Send the email using the 'html_message' parameter
-    try:
-        send_mail(
-            subject="Welcome to SchoolLink! Set Up Your Account",
-            message=plain_message,  # The plain text version
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[user.email],
-            html_message=html_message,  # The HTML version
-            fail_silently=False,
-        )
-    except Exception as e:
-        # This helps you debug if the email sending itself fails
-        print(f"ERROR: Could not send account setup email. Reason: {e}")
+    send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [user.email])
 
 
 def setup_new_parent_account(request, uidb64, token):

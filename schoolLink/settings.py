@@ -170,3 +170,10 @@ LOGIN_REDIRECT_URL = "home"
 
 # The URL where users are redirected after logging out.
 LOGOUT_REDIRECT_URL = "home"
+
+# Tell Django where to find your static files directory
+STATIC_URL = "static/"
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "theme/static"),
+]
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")  # For production

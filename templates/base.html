@@ -1,109 +1,148 @@
 {% load static %}
 <!DOCTYPE html>
-<!-- The data-theme attribute controls the entire color palette. Try "light", "dark", "cupcake", "bumblebee", "synthwave" -->
 <html lang="en" data-theme="light">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>SchoolLink</title>
+
+    <!-- Professional Typography: Google Fonts (Inter) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
     <link rel="icon" type="image/png" href="{% static 'images/favicon.png' %}" />
     <link href="{% static 'css/dist/styles.css' %}" rel="stylesheet" />
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <!-- Intl-Tel-Input for Phone Fields -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/css/intlTelInput.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/intlTelInput.min.js"></script>
     <style>
+      body {
+        font-family: 'Inter', sans-serif;
+      }
       [x-cloak] {
         display: none !important;
       }
+      * {
+        transition: background-color 0.2s ease-out, color 0.2s ease-out;
+      }
     </style>
   </head>
-  <body class="bg-base-200 min-h-screen flex flex-col">
-    <!-- Navbar -->
-    <header class="navbar bg-base-100 shadow-sm sticky top-0 z-40">
-      <div class="navbar-start">
-        <div class="dropdown">
-          <div tabindex="0" role="button" class="btn btn-ghost lg:hidden">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h8m-8 6h16" />
-            </svg>
-          </div>
-          <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
-            {% if user.is_authenticated %}
-              <li>
-                <a href="{% if user.role == 'TEACHER' %}
-                    {% url 'teacher_dashboard' %}
-                  {% else %}
-                    {% url 'parent_dashboard' %}
-                  {% endif %}">
-                  Dashboard
-                </a>
-              </li>
-              <li>
-                <a href="{% url 'view_events' %}">Events</a>
-              </li>
-            {% else %}
-              <li>
-                <a href="{% url 'login' %}" class="btn btn-primary w-full">Login</a>
-              </li>
-            {% endif %}
-          </ul>
-        </div>
-        <a href="{% url 'home' %}" class="btn btn-ghost text-xl">SchoolLink</a>
-      </div>
-
-      <div class="navbar-center hidden lg:flex">
-        {% if user.is_authenticated %}
-          <ul class="menu menu-horizontal px-1">
-            <li>
-              <a href="{% if user.role == 'TEACHER' %}
-                  {% url 'teacher_dashboard' %}
-                {% else %}
-                  {% url 'parent_dashboard' %}
-                {% endif %}">
-                Dashboard
-              </a>
-            </li>
-            <li>
-              <a href="{% url 'view_events' %}">Events</a>
-            </li>
-          </ul>
-        {% endif %}
-      </div>
-
-      <div class="navbar-end">
-        {% if user.is_authenticated %}
-          <div class="dropdown dropdown-end">
-            <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
-              <div class="w-10 rounded-full bg-primary text-primary-content flex items-center justify-center font-bold">
-                <span>{{ user.first_name|first|upper }}{{ user.last_name|first|upper }}</span>
+  <body class="bg-base-200">
+    <div class="flex flex-col min-h-screen">
+      <!-- HEADER & NAVBAR -->
+      <header class="bg-base-100/80 backdrop-blur-sm shadow-sm sticky top-0 z-50">
+        <div class="navbar max-w-7xl mx-auto">
+          <div class="navbar-start">
+            <!-- Mobile Menu (Hamburger) -->
+            <div class="dropdown">
+              <div tabindex="0" role="button" class="btn btn-ghost lg:hidden">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h8m-8 6h16" />
+                </svg>
               </div>
+              <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
+                {% if user.is_authenticated %}
+                  <li>
+                    <a href="{% if user.role == 'TEACHER' %}
+                        {% url 'teacher_dashboard' %}
+                      {% else %}
+                        {% url 'parent_dashboard' %}
+                      {% endif %}">
+                      Dashboard
+                    </a>
+                  </li>
+                  <li>
+                    <a href="{% url 'view_events' %}">Events</a>
+                  </li>
+                {% else %}
+                  <li>
+                    <a href="{% url 'login' %}">Login</a>
+                  </li>
+                {% endif %}
+              </ul>
             </div>
-            <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
-              <li class="p-2 font-semibold">Welcome, {{ user.first_name }}</li>
-              <div class="divider my-0"></div>
-              <li>
-                <a href="{% url 'logout' %}">Logout</a>
-              </li>
-            </ul>
+            <!-- Logo -->
+            <a href="{% url 'home' %}" class="btn btn-ghost text-xl font-bold">SchoolLink</a>
           </div>
-        {% else %}
-          <a href="{% url 'login' %}" class="btn btn-primary hidden lg:flex">Login</a>
-        {% endif %}
-      </div>
-    </header>
 
-    <!-- Main Content Area -->
-    <main class="p-4 sm:p-6 lg:p-8 flex-grow">
-      {% block content %}
+          <!-- Desktop Menu (Center) -->
+          <div class="navbar-center hidden lg:flex">
+            {% if user.is_authenticated %}
+              <ul class="menu menu-horizontal px-1 font-medium">
+                <li>
+                  <a href="{% if user.role == 'TEACHER' %}
+                      {% url 'teacher_dashboard' %}
+                    {% else %}
+                      {% url 'parent_dashboard' %}
+                    {% endif %}">
+                    Dashboard
+                  </a>
+                </li>
+                <li>
+                  <a href="{% url 'view_events' %}">Events</a>
+                </li>
+              </ul>
+            {% endif %}
+          </div>
 
-      {% endblock %}
-    </main>
+          <div class="navbar-end">
+            {% if user.is_authenticated %}
+              <!-- The NEW, OUTSTANDING Profile Icon & Dropdown -->
+              <div class="dropdown dropdown-end">
+                <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar transition-transform duration-200 ease-in-out hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-base-100">
+                  <!--    
+                                    This is the superior icon. It's a clean, professional SVG that 
+                                    looks better than basic initials and is universally recognized.
+                                   -->
+                  {% if user.profile_image.url %}
+                    {# Assumes you have a profile model with an image field #}
+                    <div class="w-10 rounded-full">
+                      <img src="{{ user.profile_image.url }}" alt="User Profile Image" />
+                    </div>
+                  {% else %}
+                    <div class="w-10 rounded-full text-base-content/50">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-full w-full" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                  {% endif %}
+                </div>
+                <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow-lg bg-base-100 rounded-box w-52">
+                  <li class="p-2 font-semibold text-center">Hi, {{ user.first_name }}!</li>
+                  <div class="divider my-0"></div>
+                  <li>
+                    <a href="{% url 'logout' %}">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                      </svg>Logout
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            {% else %}
+              <a href="{% url 'login' %}" class="btn btn-primary">Login</a>
+            {% endif %}
+          </div>
+        </div>
+      </header>
 
-    <!-- Footer -->
-    <footer class="footer text-center footer-center p-4 bg-base-300 text-base-content">
-      <aside>
-        <p>
-          Copyright ©{% now 'Y' %}- All right reserved by SchoolLink
-        </p>
-      </aside>
-    </footer>
+      <!-- MAIN CONTENT -->
+      <main class="flex-grow w-full max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+        {% block content %}
+          <!-- Child templates will fill this block -->
+        {% endblock %}
+      </main>
+
+      <!-- FOOTER -->
+      <footer class="footer footer-center p-4 bg-base-300 text-base-content mt-8">
+        <aside>
+          <p>
+            Copyright ©{% now 'Y' %}- All right reserved by SchoolLink
+          </p>
+        </aside>
+      </footer>
+    </div>
   </body>
 </html>

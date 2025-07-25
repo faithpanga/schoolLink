@@ -1,84 +1,80 @@
 {% extends 'base.html' %}
 {% block content %}
-  <div class="max-w-3xl mx-auto">
-    <div class="flex justify-between items-center mb-6">
-      <h1 class="text-3xl font-bold text-gray-800">Conversation History</h1>
-      <p class="text-gray-600">For: {{ student.first_name }} {{ student.last_name }}</p>
-    </div>
-    <div class="bg-white rounded-lg shadow-md p-6 space-y-6 h-96 overflow-y-auto flex flex-col">
-      {% for comm in communications %}
-        <div class="flex items-end {% if comm.sender == request.user %}
-            
-            
-            
-            
-            justify-end
-
-
-
-
-          {% else %}
-            
-            
-            
-            
-            justify-start
-
-
-
-
-          {% endif %}">
-          <div class="max-w-lg p-3 rounded-xl {% if comm.sender == request.user %}
-              
-              
-              
-              
-              bg-blue-500 text-black
-
-
-
-
-            {% else %}
-              
-              
-              
-              
-              bg-gray-200 text-gray-800
-
-
-
-
-            {% endif %}">
-            <p class="font-bold text-sm">
-              {{ comm.sender.first_name }} {% if comm.source == 'SMS' %}
-                <span class="font-normal opacity-75">(via SMS)</span>
-              {% endif %}
+<div class="card w-full max-w-4xl mx-auto bg-base-100 shadow-xl">
+    <div class="card-body">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
+            <h2 class="card-title text-2xl">Conversation History</h2>
+            <p class="text-base-content/70">
+                For: <span class="font-bold">{{ student.first_name }} {{ student.last_name }}</span>
             </p>
-            <p class="text-md">{{ comm.body|linebreaks }}</p>
-            <p class="text-xs text-right mt-1 opacity-70">{{ comm.timestamp|date:'M d, P' }}</p>
-          </div>
         </div>
-      {% empty %}
-        <p class="text-center text-gray-500 m-auto">No communications yet. Start the conversation!</p>
-      {% endfor %}
+
+        <!-- 
+            CHAT HISTORY
+            - We remove 'flex-col-reverse'.
+            - We add `x-data` and `x-init` to handle auto-scrolling with Alpine.js.
+        -->
+        <div 
+            x-data="{ scroll: () => { $el.scrollTop = $el.scrollHeight; } }"
+            x-init="scroll()"
+            class="p-4 bg-base-200 rounded-lg h-96 overflow-y-auto"
+        >
+            <div class="space-y-4">
+                <!-- 
+                    The `communications` are now iterated in their natural order (oldest to newest).
+                    We no longer need the 'reversed' filter.
+                -->
+                {% for comm in communications %}
+                    <div class="chat {% if comm.sender == request.user %}chat-end{% else %}chat-start{% endif %}">
+                        <div class="chat-header text-xs opacity-60 mb-1">
+                            {{ comm.sender.first_name }}
+                            <time class="ml-1">{{ comm.timestamp|date:'M d, P' }}</time>
+                        </div>
+                        <div class="chat-bubble {% if comm.sender == request.user %}chat-bubble-primary{% endif %}">
+                            {{ comm.body|linebreaksbr }}
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="flex items-center justify-center h-full">
+                        <div class="text-center text-base-content/60">
+                            <p>No messages yet. Start the conversation!</p>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- 
+            MESSAGE INPUT FORM
+            - This now correctly uses the `message_form` object passed from the view.
+        -->
+        <div class="mt-4">
+            <form action="{% url 'communication_log' student.id %}" method="post" class="flex items-start gap-2">
+                {% csrf_token %}
+                
+                <!-- This renders the textarea with proper styling from the form widget -->
+                <div class="flex-grow">
+                    {{ message_form.body }}
+                </div>
+                
+                <div class="flex flex-col items-center gap-2 pt-1">
+                    <!-- The SMS checkbox is now rendered from the form -->
+                    {% if request.user.role == 'TEACHER' %}
+                        <label class="label cursor-pointer gap-2 p-0">
+                            <span class="label-text text-xs">SMS Alert</span> 
+                            {{ message_form.send_sms }}
+                        </label>
+                    {% endif %}
+                    
+                    <button type="submit" class="btn btn-primary btn-circle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
+                    </button>
+                </div>
+            </form>
+            {% if message_form.body.errors %}
+                <p class="text-error text-sm mt-1">{{ message_form.body.errors|first }}</p>
+            {% endif %}
+        </div>
     </div>
-    <div class="mt-6">
-      <form action="{% url 'communication_log' student.id %}" method="post" class="bg-white p-4 rounded-lg shadow-md flex items-center space-x-4">
-        {% csrf_token %}
-        <textarea name="body" rows="1" placeholder="Type your message here..." class="flex-grow p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
-        <!-- Add this checkbox if the logged-in user is a teacher -->
-        {% if request.user.role == 'TEACHER' %}
-          <div class="flex items-center ml-4">
-            <input id="send_sms" name="send_sms" type="checkbox" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
-            <label for="send_sms" class="ml-2 block text-sm text-gray-900">Send SMS Alert</label>
-          </div>
-        {% endif %}
-        <button type="submit" class="bg-blue-500 text-white font-bold p-3 rounded-full hover:bg-blue-600 transition-transform duration-150 ease-in-out hover:scale-110">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-          </svg>
-        </button>
-      </form>
-    </div>
-  </div>
+</div>
 {% endblock %}
