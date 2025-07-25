@@ -826,6 +826,9 @@
   .collapse {
     visibility: collapse;
   }
+  .visible {
+    visibility: visible;
+  }
   .list {
     display: flex;
     flex-direction: column;
@@ -1039,6 +1042,21 @@
   .input::-webkit-calendar-picker-indicator {
     position: absolute;
     inset-inline-end: 0.75em;
+  }
+  .indicator {
+    position: relative;
+    display: inline-flex;
+    width: max-content;
+  }
+  .indicator :where(.indicator-item) {
+    z-index: 1;
+    position: absolute;
+    white-space: nowrap;
+    top: var(--indicator-t, 0);
+    bottom: var(--indicator-b, auto);
+    left: var(--indicator-s, auto);
+    right: var(--indicator-e, 0);
+    translate: var(--indicator-x, 50%) var(--indicator-y, -50%);
   }
   .table {
     font-size: 0.875rem;
@@ -1430,6 +1448,54 @@
   .checkbox:disabled {
     cursor: not-allowed;
     opacity: 20%;
+  }
+  .progress {
+    position: relative;
+    height: calc(0.25rem * 2);
+    width: 100%;
+    appearance: none;
+    overflow: hidden;
+    border-radius: var(--radius-box);
+    background-color: currentColor;
+  }
+  @supports (color: color-mix(in lab, red, red)) {
+    .progress {
+      background-color: color-mix(in oklab, currentColor 20%, transparent);
+    }
+  }
+  .progress {
+    color: var(--color-base-content);
+  }
+  .progress:indeterminate {
+    background-image: repeating-linear-gradient( 90deg, currentColor -1%, currentColor 10%, #0000 10%, #0000 90% );
+    background-size: 200%;
+    background-position-x: 15%;
+    animation: progress 5s ease-in-out infinite;
+  }
+  @supports (-moz-appearance: none) {
+    .progress:indeterminate::-moz-progress-bar {
+      background-color: transparent;
+      background-image: repeating-linear-gradient( 90deg, currentColor -1%, currentColor 10%, #0000 10%, #0000 90% );
+      background-size: 200%;
+      background-position-x: 15%;
+      animation: progress 5s ease-in-out infinite;
+    }
+  }
+  @supports (-moz-appearance: none) {
+    .progress::-moz-progress-bar {
+      border-radius: var(--radius-box);
+      background-color: currentColor;
+    }
+  }
+  @supports (-webkit-appearance: none) {
+    .progress::-webkit-progress-bar {
+      border-radius: var(--radius-box);
+      background-color: transparent;
+    }
+    .progress::-webkit-progress-value {
+      border-radius: var(--radius-box);
+      background-color: currentColor;
+    }
   }
   .relative {
     position: relative;
@@ -2425,6 +2491,9 @@
     margin-block-start: calc(calc(var(--spacing) * 8) * var(--tw-space-y-reverse));
     margin-block-end: calc(calc(var(--spacing) * 8) * calc(1 - var(--tw-space-y-reverse)));
   }
+  .gap-x-6 {
+    column-gap: calc(var(--spacing) * 6);
+  }
   :where(.space-x-2 > :not(:last-child)) {
     --tw-space-x-reverse: 0;
     margin-inline-start: calc(calc(var(--spacing) * 2) * var(--tw-space-x-reverse));
@@ -2434,6 +2503,9 @@
     --tw-space-x-reverse: 0;
     margin-inline-start: calc(calc(var(--spacing) * 4) * var(--tw-space-x-reverse));
     margin-inline-end: calc(calc(var(--spacing) * 4) * calc(1 - var(--tw-space-x-reverse)));
+  }
+  .gap-y-4 {
+    row-gap: calc(var(--spacing) * 4);
   }
   :where(.divide-y > :not(:last-child)) {
     --tw-divide-y-reverse: 0;
@@ -3388,6 +3460,11 @@
     }
   }
   @media (width >= 48rem) {
+    .md\:col-span-2 {
+      grid-column: span 2 / span 2;
+    }
+  }
+  @media (width >= 48rem) {
     .md\:flex {
       display: flex;
     }
@@ -3405,6 +3482,11 @@
   @media (width >= 48rem) {
     .md\:items-center {
       align-items: center;
+    }
+  }
+  @media (width >= 48rem) {
+    .md\:p-10 {
+      padding: calc(var(--spacing) * 10);
     }
   }
   @media (width >= 48rem) {

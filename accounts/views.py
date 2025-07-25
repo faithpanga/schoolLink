@@ -2,7 +2,7 @@ from django.utils import timezone  # This is Django's time-aware utility
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
-from .forms import LoginForm, TeacherRegistrationForm
+from .forms import LoginForm, SetPasswordForm, TeacherRegistrationForm
 from .models import User
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
@@ -107,18 +107,22 @@ def setup_new_parent_account(request, uidb64, token):
 
     if user is not None and default_token_generator.check_token(user, token):
         if request.method == "POST":
-            password = request.POST.get("password")
-            password_confirm = request.POST.get("password_confirm")
-            if password and password == password_confirm:
-                user.set_password(password)
+            # --- THE IMPROVEMENT ---
+            # Use the SetPasswordForm to handle validation and cleaning.
+            form = SetPasswordForm(request.POST)
+            if form.is_valid():
+                # The form already confirmed the passwords match.
+                user.set_password(form.cleaned_data["password"])
                 user.save()
                 messages.success(
                     request, "Your password has been set! You can now log in."
                 )
                 return redirect("login")
-            else:
-                messages.error(request, "Passwords do not match. Please try again.")
-        return render(request, "accounts/setup_parent_account.html")
+            # If form is not valid, it will fall through and be re-rendered with errors.
+        else:
+            form = SetPasswordForm()  # Create an empty form for GET request
+
+        return render(request, "accounts/setup_parent_account.html", {"form": form})
     else:
         messages.error(request, "The account setup link is invalid or has expired.")
         return redirect("home")

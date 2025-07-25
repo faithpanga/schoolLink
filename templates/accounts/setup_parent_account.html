@@ -4,13 +4,25 @@
     <div class="card w-full max-w-md bg-base-100 shadow-xl">
       <div class="card-body p-8 text-center">
         <h2 class="card-title text-3xl justify-center">Set Up Your Account</h2>
-        <p class="text-base-content/80 mt-2 mb-6">Welcome to SchoolLink! Please create a password to activate your parent account.</p>
+        <p class="text-base-content/80 mt-2 mb-6">Welcome! Please create a password to activate your parent account.</p>
 
         <form method="post" class="space-y-4">
           {% csrf_token %}
 
-          <!-- Assuming your form has 'password' and 'password_confirm' fields -->
-          {{ form }}
+          <!-- This renders your two password fields with proper styling -->
+          {% for field in form %}
+            <label class="form-control w-full">
+              <div class="label">
+                <span class="label-text">{{ field.label }}</span>
+              </div>
+              {{ field }}
+              {% for error in field.errors %}
+                <div class="label">
+                  <span class="label-text-alt text-error">{{ error }}</span>
+                </div>
+              {% endfor %}
+            </label>
+          {% endfor %}
 
           <div class="card-actions justify-center mt-6">
             <button type="submit" class="btn btn-primary btn-wide">Set Password & Activate</button>

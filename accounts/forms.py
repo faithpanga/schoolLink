@@ -34,41 +34,46 @@ class LoginForm(forms.Form):
 
 
 class TeacherRegistrationForm(UserCreationForm):
+    """
+    A custom UserCreationForm for Teachers.
+    We explicitly define all fields to ensure they exist before styling.
+    """
+
+    # Explicitly define the fields we want to add or control
+    first_name = forms.CharField(max_length=100, label="First Name")
+    last_name = forms.CharField(max_length=100, label="Last Name")
+    email = forms.EmailField(label="Email Address")
+    phone_number = PhoneNumberField(
+        label="Phone Number", widget=forms.TextInput(attrs={"id": "phone_number_input"})
+    )
+
     class Meta(UserCreationForm.Meta):
         model = User
+        # The fields tuple now includes 'new_password1' and 'new_password2' from the parent form.
+        # It should list all fields that the form will handle.
         fields = ("first_name", "last_name", "email", "phone_number")
-
-    # The phone_number field is no longer defined here.
-    # We will modify the one created by the Meta class below.
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # We will style each field explicitly for clarity and control.
-        self.fields["first_name"].widget.attrs.update(
-            {"class": "input input-bordered w-full"}
-        )
-        self.fields["last_name"].widget.attrs.update(
-            {"class": "input input-bordered w-full"}
-        )
-        self.fields["email"].widget.attrs.update(
-            {"class": "input input-bordered w-full"}
-        )
+        # Now that all fields are guaranteed to exist, we can safely style them.
+        for field_name, field in self.fields.items():
+            # The password fields have different placeholder text
+            if field_name == "new_password1":
+                placeholder = "Enter password"
+            elif field_name == "new_password2":
+                placeholder = "Confirm password"
+            else:
+                placeholder = field.label
 
-        # This is the correct way to modify the phone_number field
-        self.fields["phone_number"].widget.attrs.update(
-            {
-                "class": "input input-bordered w-full",
-                "id": "phone_number_input",  # The ID for our JavaScript
-            }
-        )
-
-        # Style the default password fields from UserCreationForm
-        self.fields["password"].widget.attrs.update(
-            {"class": "input input-bordered w-full"}
-        )
-        self.fields["password2"].widget.attrs.update(
-            {"class": "input input-bordered w-full"}
-        )
+            field.widget.attrs.update(
+                {
+                    "class": "input input-bordered w-full",
+                    "placeholder": placeholder,
+                }
+            )
+            # Give the phone number input its special ID for the JS library
+            if field_name == "phone_number":
+                field.widget.attrs["id"] = "phone_number_input"
 
     def save(self, commit=True):
         user = super().save(commit=False)
