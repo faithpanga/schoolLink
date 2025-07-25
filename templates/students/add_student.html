@@ -1,124 +1,76 @@
 {% extends 'base.html' %}
 {% block content %}
-  <style>
-    /* This CSS is essential for the phone number input to look perfect */
-    .iti {
-      width: 100%;
-      display: block;
-    }
-  </style>
+<!-- The <style> block is no longer needed -->
 
-  <div class="flex justify-center items-center py-10">
+<div class="flex justify-center items-center py-10">
     <div class="card w-full max-w-2xl bg-base-100 shadow-xl">
-      <div class="card-body p-8 md:p-10">
-        <h2 class="card-title text-3xl justify-center mb-6">Add a New Student</h2>
-
-        <form method="post" class="space-y-4">
-          {% csrf_token %}
-
-          <!-- SECTION 1: Student Information -->
-          <div class="p-4 border border-base-300/50 rounded-box">
-            <h3 class="font-bold text-lg mb-4">Student Information</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <!-- Student First Name -->
-              <label class="form-control">
-                <div class="label">
-                  <span class="label-text">{{ form.student_first_name.label }}</span>
+        <div class="card-body p-8 md:p-10">
+            <h2 class="card-title text-3xl justify-center mb-6">Add a New Student</h2>
+            
+            <form method="post" class="space-y-4">
+                {% csrf_token %}
+                
+                <!-- SECTION 1: Student Information -->
+                <div class="p-4 border border-base-300/50 rounded-box">
+                    <h3 class="font-bold text-lg mb-4">Student Information</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <label class="form-control">
+                            <div class="label"><span class="label-text">{{ form.student_first_name.label }}</span></div>
+                            {{ form.student_first_name }}
+                            {% for error in form.student_first_name.errors %}<p class="text-error text-xs mt-1">{{ error }}</p>{% endfor %}
+                        </label>
+                        <label class="form-control">
+                            <div class="label"><span class="label-text">{{ form.student_last_name.label }}</span></div>
+                            {{ form.student_last_name }}
+                            {% for error in form.student_last_name.errors %}<p class="text-error text-xs mt-1">{{ error }}</p>{% endfor %}
+                        </label>
+                    </div>
                 </div>
-                {{ form.student_first_name }}
-                {% for error in form.student_first_name.errors %}
-                  <p class="text-error text-xs mt-1">{{ error }}</p>
-                {% endfor %}
-              </label>
-              <!-- Student Last Name -->
-              <label class="form-control">
-                <div class="label">
-                  <span class="label-text">{{ form.student_last_name.label }}</span>
-                </div>
-                {{ form.student_last_name }}
-                {% for error in form.student_last_name.errors %}
-                  <p class="text-error text-xs mt-1">{{ error }}</p>
-                {% endfor %}
-              </label>
-            </div>
-          </div>
 
-          <!-- SECTION 2: Parent Information -->
-          <div class="p-4 border border-base-300/50 rounded-box">
-            <h3 class="font-bold text-lg mb-4">Parent Information</h3>
-            <div class="space-y-4">
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <!-- Parent First Name -->
-                <label class="form-control">
-                  <div class="label">
-                    <span class="label-text">{{ form.parent_first_name.label }}</span>
-                  </div>
-                  {{ form.parent_first_name }}
-                  {% for error in form.parent_first_name.errors %}
-                    <p class="text-error text-xs mt-1">{{ error }}</p>
-                  {% endfor %}
-                </label>
-                <!-- Parent Last Name -->
-                <label class="form-control">
-                  <div class="label">
-                    <span class="label-text">{{ form.parent_last_name.label }}</span>
-                  </div>
-                  {{ form.parent_last_name }}
-                  {% for error in form.parent_last_name.errors %}
-                    <p class="text-error text-xs mt-1">{{ error }}</p>
-                  {% endfor %}
-                </label>
-              </div>
-              <!-- Parent Email -->
-              <label class="form-control">
-                <div class="label">
-                  <span class="label-text">{{ form.parent_email.label }}</span>
+                <!-- SECTION 2: Parent Information -->
+                 <div class="p-4 border border-base-300/50 rounded-box">
+                    <h3 class="font-bold text-lg mb-4">Parent Information</h3>
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <label class="form-control">
+                                <div class="label"><span class="label-text">{{ form.parent_first_name.label }}</span></div>
+                                {{ form.parent_first_name }}
+                                {% for error in form.parent_first_name.errors %}<p class="text-error text-xs mt-1">{{ error }}</p>{% endfor %}
+                            </label>
+                            <label class="form-control">
+                                <div class="label"><span class="label-text">{{ form.parent_last_name.label }}</span></div>
+                                {{ form.parent_last_name }}
+                                {% for error in form.parent_last_name.errors %}<p class="text-error text-xs mt-1">{{ error }}</p>{% endfor %}
+                            </label>
+                        </div>
+                        <label class="form-control">
+                            <div class="label"><span class="label-text">{{ form.parent_email.label }}</span></div>
+                            {{ form.parent_email }}
+                            {% for error in form.parent_email.errors %}<p class="text-error text-xs mt-1">{{ error }}</p>{% endfor %}
+                        </label>
+                        <label class="form-control">
+                            <div class="label"><span class="label-text">{{ form.parent_phone.label }}</span></div>
+                            {{ form.parent_phone }}
+                            <!-- This will now display the help_text from the form -->
+                            {% if form.parent_phone.help_text %}
+                                <div class="label"><span class="label-text-alt">{{ form.parent_phone.help_text }}</span></div>
+                            {% endif %}
+                            {% for error in form.parent_phone.errors %}<p class="text-error text-xs mt-1">{{ error }}</p>{% endfor %}
+                        </label>
+                    </div>
                 </div>
-                {{ form.parent_email }}
-                {% for error in form.parent_email.errors %}
-                  <p class="text-error text-xs mt-1">{{ error }}</p>
-                {% endfor %}
-              </label>
-              <!-- Parent Phone -->
-              <label class="form-control">
-                <div class="label">
-                  <span class="label-text">{{ form.parent_phone.label }}</span>
+
+                {% if form.non_field_errors %}<div class="alert alert-error mt-4"><span>{{ form.non_field_errors|first }}</span></div>{% endif %}
+
+                <div class="card-actions justify-end mt-6 gap-2">
+                    <a href="{% url 'teacher_dashboard' %}" class="btn btn-ghost">Cancel</a>
+                    <button type="submit" class="btn btn-primary">Add Student</button>
                 </div>
-                {{ form.parent_phone }}
-                {% for error in form.parent_phone.errors %}
-                  <p class="text-error text-xs mt-1">{{ error }}</p>
-                {% endfor %}
-              </label>
-            </div>
-          </div>
-
-          <!-- Display any non-field errors from Django -->
-          {% if form.non_field_errors %}
-            <div class="alert alert-error mt-4">
-              <span>{{ form.non_field_errors|first }}</span>
-            </div>
-          {% endif %}
-
-          <!-- Action Buttons -->
-          <div class="card-actions justify-end mt-6 gap-2">
-            <a href="{% url 'teacher_dashboard' %}" class="btn btn-ghost">Cancel</a>
-            <button type="submit" class="btn btn-primary">Add Student</button>
-          </div>
-        </form>
-      </div>
+            </form>
+        </div>
     </div>
-  </div>
+</div>
 
-  <script>
-    const phoneInput = document.querySelector('#parent_phone_input')
-    if (phoneInput) {
-      window.intlTelInput(phoneInput, {
-        utilsScript: 'https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/utils.js',
-        // Set the default country to Tanzania (+255)
-        initialCountry: 'tz',
-        // Prefer the default country over geoIP lookup for consistency
-        preferredCountries: ['tz', 'ke', 'ug', 'us', 'gb']
-      })
-    }
-  </script>
+<!-- The entire <script> block has been removed -->
+
 {% endblock %}

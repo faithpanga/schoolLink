@@ -53,42 +53,49 @@ def parent_dashboard(request):
 @login_required
 def add_student(request):
     if request.user.role != "TEACHER":
+        messages.error(request, "You do not have permission to perform this action.")
         return redirect("home")
+
     if request.method == "POST":
         form = AddStudentForm(request.POST)
         if form.is_valid():
             data = form.cleaned_data
-            parent = None
-            try:
-                # Check if a parent with this email already exists
-                parent = User.objects.get(email=data["parent_email"])
-                messages.info(
-                    request,
-                    f"Existing parent account for {parent.email} was found and linked.",
-                )
-            except User.DoesNotExist:
-                parent = User.objects.create(
-                    email=data["parent_email"],
-                    first_name=data["parent_first_name"],
-                    last_name=data["parent_last_name"],
-                    phone_number=data["parent_phone"],
-                    role="PARENT",
-                )
+
+            # Use get_or_create for a more robust and concise query.
+            # It returns the object and a boolean `created` which is True if a new object was made.
+            parent, created = User.objects.get_or_create(
+                email=data["parent_email"],
+                defaults={
+                    "first_name": data["parent_first_name"],
+                    "last_name": data["parent_last_name"],
+                    "phone_number": data["parent_phone"],
+                    "role": User.Role.PARENT,
+                },
+            )
+
+            # If a new parent was created, set their password and send the setup email.
+            if created:
                 parent.set_unusable_password()
                 parent.save()
                 try:
                     send_account_setup_email(parent, request)
                     messages.success(
                         request,
-                        f"New parent account for {parent.email} created. They will receive a setup email.",
+                        f"New parent account for {parent.email} created. A setup email has been sent.",
                     )
                 except Exception as e:
                     logger.error(f"Failed to send setup email to {parent.email}: {e}")
                     messages.warning(
                         request,
-                        f"Parent account for {parent.email} created, but the setup email failed to send. Please check logs.",
+                        f"Parent account for {parent.email} created, but the setup email failed to send. Please check your email configuration and server logs.",
                     )
+            else:
+                messages.info(
+                    request,
+                    f"Existing parent account for {parent.email} was found and linked to the new student.",
+                )
 
+            # Create the student and link them to the teacher and parent.
             Student.objects.create(
                 first_name=data["student_first_name"],
                 last_name=data["student_last_name"],
@@ -96,9 +103,11 @@ def add_student(request):
                 parent=parent,
             )
             messages.success(
-                request, f"Student '{data['student_first_name']}' has been added."
+                request,
+                f"Student '{data['student_first_name']}' has been added successfully.",
             )
             return redirect("teacher_dashboard")
     else:
         form = AddStudentForm()
+
     return render(request, "students/add_student.html", {"form": form})
