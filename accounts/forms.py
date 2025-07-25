@@ -43,7 +43,7 @@ class TeacherRegistrationForm(UserCreationForm):
     class Meta(UserCreationForm.Meta):
         model = User
         # Tell the form to use these fields from your User model.
-        # The UserCreationForm will AUTOMATICALLY add the password fields itself.
+        # UserCreationForm automatically adds the password and email fields.
         fields = ("first_name", "last_name", "email", "phone_number")
 
     def __init__(self, *args, **kwargs):
@@ -59,15 +59,16 @@ class TeacherRegistrationForm(UserCreationForm):
                 "first_name": "Your first name",
                 "last_name": "Your last name",
                 "email": "your.email@example.com",
-                "phone_number": "Your phone number",
-                "new_password1": "Create a strong password",
-                "new_password2": "Confirm your password",
+                "phone_number": "",  # The JS library will add its own placeholder
+                "password1": "Create a strong password",
+                "password2": "Confirm your password",
             }
 
+            # Apply DaisyUI classes and placeholders to all fields
             field.widget.attrs.update(
                 {
-                    "class": "input input-bordered w-full",
-                    "placeholder": placeholders.get(field_name, ""),  # Set placeholder
+                    "class": "input input-bordered w-full",  # DaisyUI class
+                    "placeholder": placeholders.get(field_name, ""),
                 }
             )
 
@@ -76,7 +77,7 @@ class TeacherRegistrationForm(UserCreationForm):
                 field.widget.attrs["id"] = "phone_number_input"
 
     def save(self, commit=True):
-        # This method is correct, no changes needed here.
+        # This method is correct, no changes needed.
         user = super().save(commit=False)
         user.role = User.Role.TEACHER
         if commit:
