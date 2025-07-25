@@ -1,3 +1,5 @@
+# assignments/forms.py
+
 from django import forms
 from .models import Assignment
 
@@ -10,21 +12,23 @@ class AssignmentForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        # Updated classes for each field type
         self.fields["title"].widget.attrs.update(
             {
-                "class": "w-full p-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-purple-500",
+                "class": "input input-bordered w-full",  # <-- UPDATED
                 "placeholder": "Enter assignment title",
             }
         )
         self.fields["notes"].widget.attrs.update(
             {
-                "class": "w-full p-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-purple-500",
+                "class": "textarea textarea-bordered w-full",  # <-- UPDATED
                 "rows": 4,
                 "placeholder": "Write notes for the parent...",
             }
         )
         self.fields["attachment"].widget.attrs.update(
             {
-                "class": "w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100"
+                # This is much cleaner and theme-aware than the old utility classes
+                "class": "file-input file-input-bordered w-full"  # <-- UPDATED
             }
         )

@@ -2,7 +2,7 @@ from django.utils import timezone  # This is Django's time-aware utility
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
-from .forms import TeacherRegistrationForm
+from .forms import LoginForm, TeacherRegistrationForm
 from .models import User
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
@@ -39,33 +39,40 @@ def teacher_register(request):
 def custom_login(request):
     if request.user.is_authenticated:
         return redirect("home")
+
     if request.method == "POST":
-        identifier = request.POST.get("identifier")
-        password = request.POST.get("password")
-        user = None
+        form = LoginForm(request.POST)  # Bind data to the form
+        if form.is_valid():
+            identifier = form.cleaned_data.get("identifier")
+            password = form.cleaned_data.get("password")
+            user = None
 
-        if not identifier or not password:
-            messages.error(request, "Please provide both an identifier and a password.")
-            return render(request, "accounts/login.html")
-
-        try:
-            if "@" in identifier:
+            try:  # Use email to authenticate
                 user = authenticate(request, email=identifier, password=password)
+            except:
+                pass
+
+            if not user:  # If email fails, try phone
+                try:
+                    user_by_phone = User.objects.get(phone_number=identifier)
+                    if user_by_phone.check_password(password):
+                        user = authenticate(
+                            request, email=user_by_phone.email, password=password
+                        )
+                except User.DoesNotExist:
+                    pass
+
+            if user is not None:
+                login(request, user)
+                messages.info(request, f"Welcome back, {user.first_name}!")
+                return redirect("home")
             else:
-                parent = User.objects.get(phone_number=identifier, role="PARENT")
-                if parent.check_password(password):
-                    user = parent
-        except User.DoesNotExist:
-            pass
+                messages.error(request, "Invalid credentials. Please try again.")
+    else:
+        form = LoginForm()  # Create an unbound form for GET requests
 
-        if user is not None:
-            login(request, user)
-            messages.info(request, f"Welcome back, {user.first_name}!")
-            return redirect("home")
-        else:
-            messages.error(request, "Invalid credentials. Please try again.")
-
-    return render(request, "accounts/login.html")
+    # Pass the form to the template
+    return render(request, "accounts/login.html", {"form": form})
 
 
 def custom_logout(request):

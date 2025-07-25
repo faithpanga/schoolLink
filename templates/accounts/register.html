@@ -1,21 +1,50 @@
 {% extends 'base.html' %}
 {% block content %}
-  <div class="flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-    <div class="w-full max-w-lg p-8 space-y-8 bg-white rounded-lg shadow-lg">
-      <h2 class="text-center text-3xl font-extrabold text-gray-900">Create a Teacher Account</h2>
-      <form method="post" class="space-y-6">
-        {% csrf_token %}
-        {% for field in form %}
-          <div>
-            <label for="{{ field.id_for_label }}" class="block text-sm font-bold text-gray-700">{{ field.label }}</label>
-            {{ field }}
-            {% if field.errors %}
-              <div class="text-red-600 text-sm mt-1">{{ field.errors }}</div>
-            {% endif %}
+  <div class="flex justify-center items-center py-10">
+    <div class="card w-full max-w-lg bg-base-100 shadow-xl">
+      <div class="card-body p-8">
+        <h2 class="card-title text-3xl justify-center mb-6">Create a Teacher Account</h2>
+
+        <form method="post" class="space-y-4">
+          {% csrf_token %}
+
+          <!-- Your registration form fields, styled via widgets in forms.py -->
+          {% for field in form %}
+            <label class="form-control w-full">
+              <div class="label">
+                <span class="label-text">{{ field.label }}</span>
+              </div>
+              {{ field }}
+              {% for error in field.errors %}
+                <div class="label">
+                  <span class="label-text-alt text-error">{{ error }}</span>
+                </div>
+              {% endfor %}
+            </label>
+          {% endfor %}
+
+          <div class="card-actions justify-center mt-6">
+            <button type="submit" class="btn btn-primary btn-wide">Register</button>
           </div>
-        {% endfor %}
-        <button type="submit" class="w-full py-2 px-4 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">Register</button>
-      </form>
+          <p class="text-center text-sm mt-4">
+            Already have an account?
+            <a href="{% url 'login' %}" class="link link-primary">Sign In</a>
+          </p>
+        </form>
+      </div>
     </div>
   </div>
+  <script>
+    const phoneInput = document.querySelector('#phone_number_input')
+    window.intlTelInput(phoneInput, {
+      utilsScript: 'https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/utils.js',
+      initialCountry: 'auto', // Automatically detect country by IP
+      geoIpLookup: (callback) => {
+        fetch('https://ipapi.co/json')
+          .then((res) => res.json())
+          .then((data) => callback(data.country_code))
+          .catch(() => callback('us'))
+      }
+    })
+  </script>
 {% endblock %}

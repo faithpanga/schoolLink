@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from events.forms import EventForm
 from .models import Event
 import datetime
 
@@ -9,16 +10,21 @@ import datetime
 def create_event(request):
     if request.user.role != "TEACHER":
         return redirect("home")
+
     if request.method == "POST":
-        Event.objects.create(
-            creator=request.user,
-            title=request.POST["title"],
-            description=request.POST["description"],
-            date=request.POST["date"],
-        )
-        messages.success(request, f"Event '{request.POST['title']}' has been created.")
-        return redirect("view_events")
-    return render(request, "events/create_event.html")
+        form = EventForm(request.POST)  # Bind the POST data to the form
+        if form.is_valid():
+            # Create an event instance but don't save to DB yet
+            event = form.save(commit=False)
+            event.creator = request.user  # Set the creator manually
+            event.save()  # Now save the complete object
+
+            messages.success(request, f"Event '{event.title}' has been created.")
+            return redirect("view_events")
+    else:
+        form = EventForm()  # Create an empty form for a GET request
+
+    return render(request, "events/create_event.html", {"form": form})
 
 
 @login_required
