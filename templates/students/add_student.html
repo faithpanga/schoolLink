@@ -1,126 +1,124 @@
 {% extends 'base.html' %}
 {% block content %}
-
-<div 
-  class="card w-full max-w-3xl mx-auto bg-base-100 shadow-xl"
-  x-data="{
-    currentStep: 1,
-    totalSteps: 3,
-    isSubmitting: false,
-    formData: {
-      student_first_name: '',
-      student_last_name: '',
-      parent_first_name: '',
-      parent_last_name: '',
-      parent_email: '',
-      parent_phone: ''
+  <style>
+    /* This CSS is essential for the phone number input to look perfect */
+    .iti {
+      width: 100%;
+      display: block;
     }
-  }"
->
-  <div class="card-body">
-    <h2 class="card-title text-3xl font-bold justify-center mb-4">Add a New Student</h2>
-    
-    <!-- DaisyUI Steps Component for Visual Progress -->
-    <ul class="steps w-full mb-8">
-      <li class="step" :class="{ 'step-primary': currentStep >= 1 }">Student Details</li>
-      <li class="step" :class="{ 'step-primary': currentStep >= 2 }">Parent Details</li>
-      <li class="step" :class="{ 'step-primary': currentStep === 3 }">Review & Confirm</li>
-    </ul>
+  </style>
 
-    <!-- This form will contain all steps, but only show one at a time -->
-    <form method="post" action="{% url 'add_student' %}" @submit.prevent="isSubmitting = true; $el.submit()">
+  <div class="flex justify-center items-center py-10">
+    <div class="card w-full max-w-2xl bg-base-100 shadow-xl">
+      <div class="card-body p-8 md:p-10">
+        <h2 class="card-title text-3xl justify-center mb-6">Add a New Student</h2>
 
-      {% csrf_token %}
+        <form method="post" class="space-y-4">
+          {% csrf_token %}
 
-      <!-- STEP 1: Student Information -->
-      <div x-show="currentStep === 1" class="alpine-step" x-transition>
-        <h3 class="font-bold text-lg mb-4">Step 1: Who is the student?</h3>
-        <div class="form-control">
-          <label class="label"><span class="label-text">Student's First Name</span></label>
-          <input type="text" name="student_first_name" x-model="formData.student_first_name" class="input input-bordered w-full" required>
-        </div>
-        <div class="form-control">
-          <label class="label"><span class="label-text">Student's Last Name</span></label>
-          <input type="text" name="student_last_name" x-model="formData.student_last_name" class="input input-bordered w-full" required>
-        </div>
-      </div>
-
-      <!-- STEP 2: Parent Information -->
-      <div x-show="currentStep === 2" x-cloak class="alpine-step" x-transition>
-        <h3 class="font-bold text-lg mb-4">Step 2: Who is the parent?</h3>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="form-control">
-              <label class="label"><span class="label-text">Parent's First Name</span></label>
-              <input type="text" name="parent_first_name" x-model="formData.parent_first_name" class="input input-bordered w-full" required>
+          <!-- SECTION 1: Student Information -->
+          <div class="p-4 border border-base-300/50 rounded-box">
+            <h3 class="font-bold text-lg mb-4">Student Information</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <!-- Student First Name -->
+              <label class="form-control">
+                <div class="label">
+                  <span class="label-text">{{ form.student_first_name.label }}</span>
+                </div>
+                {{ form.student_first_name }}
+                {% for error in form.student_first_name.errors %}
+                  <p class="text-error text-xs mt-1">{{ error }}</p>
+                {% endfor %}
+              </label>
+              <!-- Student Last Name -->
+              <label class="form-control">
+                <div class="label">
+                  <span class="label-text">{{ form.student_last_name.label }}</span>
+                </div>
+                {{ form.student_last_name }}
+                {% for error in form.student_last_name.errors %}
+                  <p class="text-error text-xs mt-1">{{ error }}</p>
+                {% endfor %}
+              </label>
             </div>
-            <div class="form-control">
-              <label class="label"><span class="label-text">Parent's Last Name</span></label>
-              <input type="text" name="parent_last_name" x-model="formData.parent_last_name" class="input input-bordered w-full" required>
-            </div>
-        </div>
-        <div class="form-control">
-          <label class="label"><span class="label-text">Parent's Email</span></label>
-          <input type="email" name="parent_email" x-model="formData.parent_email" class="input input-bordered w-full" required>
-        </div>
-        <div class="form-control">
-          <label class="label"><span class="label-text">Parent's Phone</span></label>
-          <input type="tel" name="parent_phone" x-model="formData.parent_phone" class="input input-bordered w-full" placeholder="+1...">
-        </div>
-      </div>
-      
-      <!-- STEP 3: Review Information -->
-      <div x-show="currentStep === 3" x-cloak class="alpine-step" x-transition>
-        <h3 class="font-bold text-lg mb-4">Step 3: Please review the details</h3>
-        <div class="space-y-4 p-4 bg-base-200 rounded-lg">
-          <div>
-            <h4 class="font-semibold">Student:</h4>
-            <p><span x-text="formData.student_first_name"></span> <span x-text="formData.student_last_name"></span></p>
           </div>
-          <div class="divider my-2"></div>
-          <div>
-            <h4 class="font-semibold">Parent:</h4>
-            <p><span x-text="formData.parent_first_name"></span> <span x-text="formData.parent_last_name"></span></p>
-            <p><span x-text="formData.parent_email"></span></p>
-            <p><span x-text="formData.parent_phone"></span></p>
-          </div>
-        </div>
-        <div class="alert alert-info mt-4">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-          <span>Clicking 'Add Student' will save this information and send a welcome email to the parent.</span>
-        </div>
-      </div>
 
-      <!-- Navigation Buttons -->
-      <div class="card-actions justify-end mt-8">
-        <!-- Back Button -->
-        <button type="button" class="btn" x-show="currentStep > 1" @click="currentStep--">
-          Back
-        </button>
-        <!-- Next Button -->
-        <button type="button" class="btn btn-primary" x-show="currentStep < totalSteps" @click="currentStep++">
-          Next
-        </button>
-        <!-- Submit Button -->
-        <button type="submit" class="btn btn-primary" x-show="currentStep === totalSteps" :disabled="isSubmitting">
-          <span x-show="isSubmitting" class="loading loading-spinner"></span>
-          <span x-show="!isSubmitting">Add Student</span>
-        </button>
+          <!-- SECTION 2: Parent Information -->
+          <div class="p-4 border border-base-300/50 rounded-box">
+            <h3 class="font-bold text-lg mb-4">Parent Information</h3>
+            <div class="space-y-4">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Parent First Name -->
+                <label class="form-control">
+                  <div class="label">
+                    <span class="label-text">{{ form.parent_first_name.label }}</span>
+                  </div>
+                  {{ form.parent_first_name }}
+                  {% for error in form.parent_first_name.errors %}
+                    <p class="text-error text-xs mt-1">{{ error }}</p>
+                  {% endfor %}
+                </label>
+                <!-- Parent Last Name -->
+                <label class="form-control">
+                  <div class="label">
+                    <span class="label-text">{{ form.parent_last_name.label }}</span>
+                  </div>
+                  {{ form.parent_last_name }}
+                  {% for error in form.parent_last_name.errors %}
+                    <p class="text-error text-xs mt-1">{{ error }}</p>
+                  {% endfor %}
+                </label>
+              </div>
+              <!-- Parent Email -->
+              <label class="form-control">
+                <div class="label">
+                  <span class="label-text">{{ form.parent_email.label }}</span>
+                </div>
+                {{ form.parent_email }}
+                {% for error in form.parent_email.errors %}
+                  <p class="text-error text-xs mt-1">{{ error }}</p>
+                {% endfor %}
+              </label>
+              <!-- Parent Phone -->
+              <label class="form-control">
+                <div class="label">
+                  <span class="label-text">{{ form.parent_phone.label }}</span>
+                </div>
+                {{ form.parent_phone }}
+                {% for error in form.parent_phone.errors %}
+                  <p class="text-error text-xs mt-1">{{ error }}</p>
+                {% endfor %}
+              </label>
+            </div>
+          </div>
+
+          <!-- Display any non-field errors from Django -->
+          {% if form.non_field_errors %}
+            <div class="alert alert-error mt-4">
+              <span>{{ form.non_field_errors|first }}</span>
+            </div>
+          {% endif %}
+
+          <!-- Action Buttons -->
+          <div class="card-actions justify-end mt-6 gap-2">
+            <a href="{% url 'teacher_dashboard' %}" class="btn btn-ghost">Cancel</a>
+            <button type="submit" class="btn btn-primary">Add Student</button>
+          </div>
+        </form>
       </div>
-    </form>
+    </div>
   </div>
-</div>
-<script>
-        // This makes sure the phone input is initialized every time the modal opens.
-        document.getElementById('add_student_modal').addEventListener('click', () => {
-            const phoneInput = document.querySelector("#parent_phone_input");
-            if (phoneInput && !phoneInput.classList.contains('iti__inpu')) { // Check if not already initialized
-                window.intlTelInput(phoneInput, {
-                    utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/utils.js",
-                    initialCountry: "auto",
-                    geoIpLookup: callback => { /* ... same as above ... */ }
-                });
-            }
-        }, { once: true }); // Only run once to avoid re-initializing
-</script>
 
-{% endblock %}```
+  <script>
+    const phoneInput = document.querySelector('#parent_phone_input')
+    if (phoneInput) {
+      window.intlTelInput(phoneInput, {
+        utilsScript: 'https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/utils.js',
+        // Set the default country to Tanzania (+255)
+        initialCountry: 'tz',
+        // Prefer the default country over geoIP lookup for consistency
+        preferredCountries: ['tz', 'ke', 'ug', 'us', 'gb']
+      })
+    }
+  </script>
+{% endblock %}
